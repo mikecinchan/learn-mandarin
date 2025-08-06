@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Pinyin to Stroke Order</title>
+  <script src="https://cdn.jsdelivr.net/npm/hanzi-writer@2.1.0/dist/hanzi-writer.min.js"></script>
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 20px;
+      text-align: center;
+    }
+    #writer {
+      margin-top: 30px;
+      width: 300px;
+      height: 300px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>Learn Stroke Order from Pinyin with Tone Numbers</h2>
+  <input type="text" id="pinyin-input" placeholder="e.g. ni3, ma1, wo3" />
+  <button id="show-button">Show</button>
+
+  <div id="output-char" style="font-size: 2em; margin-top: 10px;"></div>
+  <div id="writer"></div>
+
+  <script>
+    window.addEventListener('DOMContentLoaded', function () {
+      const pinyinToHanzi = {
+        "ni3": "你",
+        "hao3": "好",
+        "ma1": "妈",
+        "ma2": "麻",
+        "ma3": "马",
+        "ma4": "骂",
+        "wo3": "我",
+        "shi4": "是",
+        "zhong1": "中",
+        "guo2": "国",
+        "ren2": "人",
+        "xie4": "谢",
+        "xie4 xie": "谢谢",
+        "ni3": "你",
+        "hao3": "好",
+        "ma1": "妈",
+        "ma2": "麻",
+        "ma3": "马",
+        "ma4": "骂",
+        "wo3": "我",
+        "shi4": "是",
+        "zhong1": "中",
+        "guo2": "国",
+        "ren2": "人",
+        "xie4": "谢",
+        "xie4 xie": "谢谢",
+        "jia1": "家",
+        "bu4": "不",
+        "ta1": "它",
+        "yue4": "月",
+        "ri4": "日",
+        "nian2": "年",
+        "da4": "大",
+        "xiao3": "小",
+        "zi3": "子",
+        "le5": "了",
+        "tou2": "头",
+        "mai3": "买",
+        "du2": "读",
+        "shu1 ben3": "书本",
+        "che1": "车",
+        "xiao3 niao3": "小鸟",
+        "mao1": "猫",
+        "gou3": "狗",
+        "shi2 tou2": "石头",
+        "di4 di": "弟弟",
+        "shang4": "上",
+        "xia4": "下",
+        "shou3": "手",
+        "ren2": "人",
+        "ba1 shi4": "巴士",
+        "hua4 hua4": "画画",
+        "ma1 ma": "妈妈",
+        "ba4 ba": "爸爸",
+        "peng2 you3": "朋友",
+        "ye4": "页",
+        "zao3 shang4": "早上",
+        "chi1": "吃",
+        "zhi3": "纸",
+        "xi1 gua1": "西瓜",
+        "xi3 huan1": "喜欢",
+        "sheng1 ri4": "生日",
+        "xi1 lan2 hua1": "西兰花",
+        "kan4": "看",
+        "wan2": "玩",
+        "tian1": "天",
+        "nian2 tu3": "黏土",
+        "li3 wu4": "礼物",
+        "fei1": "飞",
+        "hua1": "花",
+        "xue2 xi2": "学习",
+        "yu4 mi3": "玉米",
+        "shui3": "水",
+        "fei1 ji1": "飞机",
+        "sui4": "岁",
+        "ni2 tu3": "泥土"
+      };
+
+      let writer;
+
+      function showCharacter() {
+  const input = document.getElementById("pinyin-input").value.trim().toLowerCase();
+  const hanzi = pinyinToHanzi[input];
+
+  const outputCharDiv = document.getElementById("output-char");
+  const writerDiv = document.getElementById("writer");
+
+  if (!hanzi) {
+    outputCharDiv.innerText = "❌ Character not found. Try tone-numbered pinyin like 'wo3' or 'shu1 ben3'";
+    writerDiv.innerHTML = '';
+    return;
+  }
+
+  outputCharDiv.innerText = `Characters: ${hanzi}`;
+  writerDiv.innerHTML = ''; // clear previous animations
+
+  // If multiple characters, animate each one separately
+  const chars = hanzi.split('');
+  chars.forEach((char, index) => {
+    // Create a unique container for each character
+    const charContainer = document.createElement('div');
+    charContainer.id = `char-${index}`;
+    charContainer.style.display = 'inline-block';
+    charContainer.style.margin = '0 10px';
+    charContainer.style.width = '150px';
+    charContainer.style.height = '150px';
+    writerDiv.appendChild(charContainer);
+
+    const writer = HanziWriter.create(`char-${index}`, char, {
+      width: 150,
+      height: 150,
+      padding: 5,
+      showOutline: true,
+      strokeAnimationSpeed: 1,
+      delayBetweenStrokes: 200
+    });
+
+    writer.animateCharacter();
+  });
+}
+
+      document.getElementById("show-button").addEventListener("click", showCharacter);
+    });
+  </script>
+
+</body>
+</html>
