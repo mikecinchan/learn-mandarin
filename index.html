@@ -6,31 +6,43 @@
   <title>Pinyin to Stroke Order</title>
   <script src="https://cdn.jsdelivr.net/npm/hanzi-writer@2.1.0/dist/hanzi-writer.min.js"></script>
   <style>
-    body {
-      font-family: sans-serif;
-      padding: 20px;
-      text-align: center;
-    }
-    #writer {
-      margin-top: 30px;
-      width: 300px;
-      height: 300px;
-      margin-left: auto;
-      margin-right: auto;
-    }
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; padding: 20px; text-align: center; }
+    .controls { margin-bottom: 8px; }
+    #writer { margin-top: 16px; }
+    .char-box { display: inline-block; width: 150px; height: 150px; margin: 0 8px; }
+    .result-line { font-size: 1.6rem; margin: 10px 0 4px; }
+    .meaning { font-size: 1rem; color: #444; margin-top: 6px; }
+    hr { margin: 28px auto; max-width: 720px; }
+    .ref { max-width: 900px; margin: 0 auto; }
+    .ref img { max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,.08); }
+    .ref small { display: block; color:#555; margin-top: 6px; }
   </style>
 </head>
 <body>
 
-  <h2>Learn Stroke Order from Pinyin with Tone Numbers</h2>
-  <input type="text" id="pinyin-input" placeholder="e.g. ni3, ma1, wo3" />
-  <button id="show-button">Show</button>
+  <h2>Learn Stroke Order from Pinyin (with Tone Numbers)</h2>
 
-  <div id="output-char" style="font-size: 2em; margin-top: 10px;"></div>
+  <div class="controls">
+    <input type="text" id="pinyin-input" placeholder="e.g. ni3, wo3, shu1 ben3, xi3 huan1" />
+    <button id="show-button">Show</button>
+  </div>
+
+  <div id="output-char" class="result-line"></div>
   <div id="writer"></div>
+  <div id="meaning" class="meaning"></div>
+
+  <hr/>
+
+  <div class="ref">
+    <h3>Basic Chinese Stroke Types</h3>
+    <!-- If your file name has spaces, using %20 makes it safe in the browser -->
+    <img src="strokes-mandarin.jpg" alt="Chinese stroke types reference" />
+    <small>Use this chart to name and recognize the strokes you see in the animations.</small>
+  </div>
 
   <script>
     window.addEventListener('DOMContentLoaded', function () {
+      // --- Dictionary: pinyin (with tone numbers) -> Hanzi ---
       const pinyinToHanzi = {
         "ni3": "你",
         "hao3": "好",
@@ -45,19 +57,7 @@
         "ren2": "人",
         "xie4": "谢",
         "xie4 xie": "谢谢",
-        "ni3": "你",
-        "hao3": "好",
-        "ma1": "妈",
-        "ma2": "麻",
-        "ma3": "马",
-        "ma4": "骂",
-        "wo3": "我",
-        "shi4": "是",
-        "zhong1": "中",
-        "guo2": "国",
-        "ren2": "人",
-        "xie4": "谢",
-        "xie4 xie": "谢谢",
+
         "jia1": "家",
         "bu4": "不",
         "ta1": "它",
@@ -67,6 +67,7 @@
         "da4": "大",
         "xiao3": "小",
         "zi3": "子",
+
         "le5": "了",
         "tou2": "头",
         "mai3": "买",
@@ -74,6 +75,7 @@
         "shu1 ben3": "书本",
         "che1": "车",
         "xiao3 niao3": "小鸟",
+
         "mao1": "猫",
         "gou3": "狗",
         "shi2 tou2": "石头",
@@ -81,12 +83,13 @@
         "shang4": "上",
         "xia4": "下",
         "shou3": "手",
-        "ren2": "人",
+
         "ba1 shi4": "巴士",
         "hua4 hua4": "画画",
         "ma1 ma": "妈妈",
         "ba4 ba": "爸爸",
         "peng2 you3": "朋友",
+
         "ye4": "页",
         "zao3 shang4": "早上",
         "chi1": "吃",
@@ -95,6 +98,7 @@
         "xi3 huan1": "喜欢",
         "sheng1 ri4": "生日",
         "xi1 lan2 hua1": "西兰花",
+
         "kan4": "看",
         "wan2": "玩",
         "tian1": "天",
@@ -110,50 +114,116 @@
         "ni2 tu3": "泥土"
       };
 
-      let writer;
+      // --- Meanings: pinyin key -> English gloss ---
+      const meanings = {
+        "ni3": "you",
+        "hao3": "good",
+        "ma1": "mother (mā)",
+        "ma2": "hemp (má)",
+        "ma3": "horse (mǎ)",
+        "ma4": "scold (mà)",
+        "wo3": "I / me",
+        "shi4": "to be",
+        "zhong1": "middle; China (as 中 in 中国)",
+        "guo2": "country; nation",
+        "ren2": "person / people",
+        "xie4": "to thank",
+        "xie4 xie": "thanks",
+
+        "jia1": "house; home",
+        "bu4": "not",
+        "ta1": "it",
+        "yue4": "month; moon",
+        "ri4": "day; sun",
+        "nian2": "year",
+        "da4": "big",
+        "xiao3": "small",
+        "zi3": "child; son (also a component)",
+
+        "le5": "particle; already",
+        "tou2": "head",
+        "mai3": "to buy / purchase",
+        "du2": "to read",
+        "shu1 ben3": "book",
+        "che1": "car; vehicle",
+        "xiao3 niao3": "bird (little bird)",
+
+        "mao1": "cat",
+        "gou3": "dog",
+        "shi2 tou2": "stone; rock",
+        "di4 di": "younger brother",
+        "shang4": "up; above",
+        "xia4": "down; below",
+        "shou3": "hand",
+
+        "ba1 shi4": "bus",
+        "hua4 hua4": "to draw (drawing practice)",
+        "ma1 ma": "mother (mama)",
+        "ba4 ba": "father (papa)",
+        "peng2 you3": "friend",
+
+        "ye4": "page",
+        "zao3 shang4": "morning",
+        "chi1": "eat",
+        "zhi3": "paper",
+        "xi1 gua1": "watermelon",
+        "xi3 huan1": "to like",
+        "sheng1 ri4": "birthday",
+        "xi1 lan2 hua1": "broccoli",
+
+        "kan4": "see; look",
+        "wan2": "play",
+        "tian1": "day; sky",
+        "nian2 tu3": "play dough / clay",
+        "li3 wu4": "present; gift",
+        "fei1": "fly",
+        "hua1": "flower",
+        "xue2 xi2": "study; learn",
+        "yu4 mi3": "corn",
+        "shui3": "water",
+        "fei1 ji1": "airplane",
+        "sui4": "age (years old)",
+        "ni2 tu3": "soil; mud"
+      };
 
       function showCharacter() {
-  const input = document.getElementById("pinyin-input").value.trim().toLowerCase();
-  const hanzi = pinyinToHanzi[input];
+        const key = document.getElementById("pinyin-input").value.trim().toLowerCase();
+        const hanzi = pinyinToHanzi[key];
 
-  const outputCharDiv = document.getElementById("output-char");
-  const writerDiv = document.getElementById("writer");
+        const outputCharDiv = document.getElementById("output-char");
+        const writerDiv = document.getElementById("writer");
+        const meaningDiv = document.getElementById("meaning");
 
-  if (!hanzi) {
-    outputCharDiv.innerText = "❌ Character not found. Try tone-numbered pinyin like 'wo3' or 'shu1 ben3'";
-    writerDiv.innerHTML = '';
-    return;
-  }
+        if (!hanzi) {
+          outputCharDiv.textContent = "❌ Not found. Try tone-numbered pinyin like “wo3” or “shu1 ben3”.";
+          writerDiv.innerHTML = '';
+          meaningDiv.textContent = '';
+          return;
+        }
 
-  outputCharDiv.innerText = `Characters: ${hanzi}`;
-  writerDiv.innerHTML = ''; // clear previous animations
+        outputCharDiv.textContent = `Characters: ${hanzi}`;
+        writerDiv.innerHTML = '';
+        meaningDiv.textContent = `Pinyin: ${key} • Meaning: ${meanings[key] || "—"}`;
 
-  // If multiple characters, animate each one separately
-  const chars = hanzi.split('');
-  chars.forEach((char, index) => {
-    // Create a unique container for each character
-    const charContainer = document.createElement('div');
-    charContainer.id = `char-${index}`;
-    charContainer.style.display = 'inline-block';
-    charContainer.style.margin = '0 10px';
-    charContainer.style.width = '150px';
-    charContainer.style.height = '150px';
-    writerDiv.appendChild(charContainer);
+        // Animate each character separately
+        hanzi.split('').forEach((ch, i) => {
+          const box = document.createElement('div');
+          box.className = 'char-box';
+          box.id = `char-${i}`;
+          writerDiv.appendChild(box);
 
-    const writer = HanziWriter.create(`char-${index}`, char, {
-      width: 150,
-      height: 150,
-      padding: 5,
-      showOutline: true,
-      strokeAnimationSpeed: 1,
-      delayBetweenStrokes: 200
-    });
-
-    writer.animateCharacter();
-  });
-}
+          const hw = HanziWriter.create(`char-${i}`, ch, {
+            width: 150, height: 150, padding: 5,
+            showOutline: true, strokeAnimationSpeed: 1, delayBetweenStrokes: 200
+          });
+          hw.animateCharacter();
+        });
+      }
 
       document.getElementById("show-button").addEventListener("click", showCharacter);
+      document.getElementById("pinyin-input").addEventListener("keydown", (e) => {
+        if (e.key === "Enter") showCharacter();
+      });
     });
   </script>
 
